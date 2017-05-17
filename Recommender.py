@@ -40,8 +40,12 @@ if page.status_code == 200:
                 tmpDict = dict(zippedList)
                 input = [dict(x) for x in (recDict, tmpDict)]
                 recDict = sum((Counter(y) for y in input), Counter())
+        else:
+            print("Page was unable to load when accessing userrecs page")
 
     recDict = dict(recDict.most_common())
 
     for i in recDict:
         uprint(i, "\nRecommended", recDict[i], "times\n")
+else:
+    print("Page was unable to load when accessing Completed list")
