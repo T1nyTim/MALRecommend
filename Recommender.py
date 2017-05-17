@@ -11,24 +11,21 @@ def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
         f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
         print(*map(f, objects), sep=sep, end=end, file=file)
 
-try:
-    page = requests.get("https://myanimelist.net/animelist/T1nyTim?status=2&tag", timeout=10)
-except Exception:
-    print("Page was unable to load when accessing Completed list")
-    sys.exit()
+def requestTimeout(url, pageType):
+    try:
+        return requests.get(url, timeout=10)
+    except Exception:
+        uprint("Page was unable to load when accessing " + pageType + " list")
+        sys.exit()
 
+page = requestTimeout("https://myanimelist.net/animelist/T1nyTim?status=2&tag", "Completed")
 tree = html.fromstring(page.content)
 animeUrl = tree.xpath('//body/div/table/tr/td/a/@href')
 animeTitle = tree.xpath('//body/div/table/tr/td/a/span/text()')
 animeUrl = [x for x in animeUrl if x[:6] == "/anime"]
 
 for i in animeUrl:
-    try:
-        page = requests.get("https://myanimelist.net" + i + "/userrecs", timeout=10)
-    except Exception:
-        uprint("Page was unable to load when accessing" + animeTitle[animeUrl.index(i)] + "list")
-        sys.exit()
-
+    page = requestTimeout("https://myanimelist.net" + i + "/userrecs", animeTitle[animeUrl.index(i)])
     tree = html.fromstring(page.content)
     recs = tree.xpath('//div[@style="margin-bottom: 2px;"]/a/strong/text()')
     num = tree.xpath('//div/a[@href="javascript:void(0);"]/strong/text()')
