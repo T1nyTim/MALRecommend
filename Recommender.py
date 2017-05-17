@@ -13,9 +13,14 @@ def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
 
 def requestTimeout(url, pageType):
     try:
-        return requests.get(url, timeout=10)
-    except Exception:
-        uprint("Page was unable to load when accessing " + pageType + " list")
+        p = requests.get(url, timeout=10)
+        if p:
+            return p
+        else:
+            uprint("Format for " + pageType + " has changed")
+            sys.exit()
+    except requests.Timeout:
+        uprint("Timed out while accessing " + pageType + " list")
         sys.exit()
 
 page = requestTimeout("https://myanimelist.net/animelist/T1nyTim?status=2&tag", "Completed")
