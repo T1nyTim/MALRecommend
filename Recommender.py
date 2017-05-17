@@ -26,8 +26,10 @@ def requestTimeout(url, pageType):
 page = requestTimeout("https://myanimelist.net/animelist/T1nyTim?status=2&tag", "Completed")
 tree = html.fromstring(page.content)
 animeUrl = tree.xpath('//body/div/table/tr/td/a/@href')
-animeTitle = tree.xpath('//body/div/table/tr/td/a/span/text()')
 animeUrl = [x for x in animeUrl if x[:6] == "/anime"]
+animeTitle = tree.xpath('//body/div/table/tr/td/a/span/text()')
+animeScore = tree.xpath('//body/div/table/tr/td[@align="center"][@width="45"]/text()')
+animeScore = [x.strip() for x in animeScore if x.strip().isnumeric()]
 
 for i in animeUrl:
     page = requestTimeout("https://myanimelist.net" + i + "/userrecs", animeTitle[animeUrl.index(i)])
@@ -39,6 +41,7 @@ for i in animeUrl:
     for j in range(len(num), len(recs)):
         num.append(1)
 
+    num = [x * int(animeScore[animeUrl.index(i)]) for x in num]
     zippedList = list(zip(recs, num))
     zippedList = [x for x in zippedList if x[0] not in animeTitle]
 
@@ -52,4 +55,4 @@ for i in animeUrl:
 recDict = dict(recDict.most_common())
 
 for i in recDict:
-    uprint(i, "\nRecommended", recDict[i], "times\n")
+    uprint(i, "\tScored:", recDict[i])
