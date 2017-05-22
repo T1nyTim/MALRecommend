@@ -5,6 +5,7 @@ import sys
 
 def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
     enc = file.encoding
+
     if enc == 'UTF-8':
         print(*objects, sep=sep, end=end, file=file)
     else:
@@ -12,16 +13,12 @@ def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
         print(*map(f, objects), sep=sep, end=end, file=file)
 
 def requestTimeout(url, pageType):
-    try:
-        p = requests.get(url, timeout=10)
-        if p:
-            return p
-        else:
-            uprint("Format for " + pageType + " has changed")
-            sys.exit()
-    except requests.Timeout:
+    p = requests.get(url, timeout=10)
+
+    if p:
+        return p
+    else:
         uprint("Timed out while accessing " + pageType + " list")
-        sys.exit()
 
 page = requestTimeout("https://myanimelist.net/animelist/T1nyTim?status=2&tag", "Completed")
 tree = html.fromstring(page.content)
@@ -33,6 +30,13 @@ animeScore = [x.strip() for x in animeScore if x.strip().isnumeric()]
 
 for i in animeUrl:
     page = requestTimeout("https://myanimelist.net" + i + "/userrecs", animeTitle[animeUrl.index(i)])
+
+    if page is None:
+        if animeUrl.index(i) == 0:
+            print("Timed out while accessing the first completed anime, in its current form the program is unable to continue")
+
+        continue
+
     tree = html.fromstring(page.content)
     recs = tree.xpath('//div[@style="margin-bottom: 2px;"]/a/strong/text()')
     num = tree.xpath('//div/a[@href="javascript:void(0);"]/strong/text()')
@@ -55,4 +59,4 @@ for i in animeUrl:
 recDict = dict(recDict.most_common())
 
 for i in recDict:
-    uprint(i, "\tScored:", recDict[i])
+    uprint("{0:70} {1}".format(i, "\tScored: {:,}".format(recDict[i])))
