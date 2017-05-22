@@ -26,7 +26,7 @@ animeUrl = tree.xpath('//body/div/table/tr/td/a/@href')
 animeUrl = [x for x in animeUrl if x[:6] == "/anime"]
 animeTitle = tree.xpath('//body/div/table/tr/td/a/span/text()')
 animeScore = tree.xpath('//body/div/table/tr/td[@align="center"][@width="45"]/text()')
-animeScore = [x.strip() for x in animeScore if x.strip().isnumeric()]
+animeScore = [x.strip() for x in animeScore]
 
 for i in animeUrl:
     page = requestTimeout("https://myanimelist.net" + i + "/userrecs", animeTitle[animeUrl.index(i)])
