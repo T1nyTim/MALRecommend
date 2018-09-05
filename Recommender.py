@@ -1,3 +1,5 @@
+#! env/Scripts/python
+
 from lxml import html
 from collections import Counter
 import requests
